@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Details für {{ unternehmen_name or 'Unbekanntes Unternehmen' }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Wichtig für Responsive Design -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Details für: {{ unternehmen_name or 'Unbekanntes Unternehmen' }}</h1>
+        <div style="margin-bottom: 15px;">
+            <a href="{{ url_for('show_data') }}" class="button-like-link">Zurück zur Unternehmensübersicht</a>
+            {# Neuer Button zum Starten des Scrapings für dieses Unternehmen #}
+            <form action="{{ url_for('scrape_company', unternehmen_id=unternehmen_id) }}" method="post" style="display: inline-block; margin-left: 10px;">
+                <button type="submit" class="button-like-link">Scraping für dieses Unternehmen starten</button>
+            </form>
+        </div>
+        <hr>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="uebersicht-header">
+            <div class="statistiken-container">
+                <div class="stat-block">
+                    <h2>Aktueller Schnitt</h2>
+                    {% if aktueller_gesamtdurchschnitt is not none %}
+                        <div class="durchschnitt-grafik-container">
+                            <canvas id="gesamtdurchschnittDonutChart"></canvas>
+                        </div>
+                        <script>
+                            const aktuellerDurchschnittForDonut = {{ aktueller_gesamtdurchschnitt|tojson|safe }};
+                            const maxSkalaForDonut = 5; // Maximalwert der Kununu-Skala
+                        </script>
+                    {% else %}
+                        <p class="stat-wert">-</p>
+                        <p class="stat-label">Kein Durchschnitt</p>
+                    {% endif %}
+                </div>
+
+                {% if aktuellste_anzahl_bewertungen is not none %}
+                <div class="stat-block">
+                    <h2>Bewertungen</h2>
+                    <p class="stat-wert">{{ aktuellste_anzahl_bewertungen }}</p>
+                    <p class="stat-label">Gesamt</p>
+                </div>
+                {% endif %}
+
+                {% if aktuelle_empfehlungsrate is not none %}
+                <div class="stat-block">
+                    <h2>Empfehlung</h2>
+                    <p class="stat-wert recommendation-wert">{{ "%.0f"|format(aktuelle_empfehlungsrate) }}%</p>
+                    <p class="stat-label">Weiterempfehlung</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="verlaufsgrafik-container">
+                <h2>Profilverlauf</h2>
+                {% if chart_profil_verlauf_data and chart_profil_verlauf_data|length > 1 %}
+                    <canvas id="profilVerlaufChart"></canvas>
+                    <script>
+                        const profilVerlaufChartData = {{ chart_profil_verlauf_data|tojson|safe }};
+                    </script>
+                {% else %}
+                    <p>Nicht genügend Daten für eine Verlaufsgrafik vorhanden.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="actions-container"> {# Neuer Wrapper für Filter und Sortierung #}
+            <div class="filter-container">
+            <h3>Bewertungen filtern:</h3>
+            <div class="filter-group">
+                <label for="filterEmpfehlung">Empfehlung:</label>
+                <select id="filterEmpfehlung" class="filter-select">
+                    <option value="alle">Alle</option>
+                    <option value="true">Empfohlen</option>
+                    <option value="false">Nicht empfohlen</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filterStatus">Mitarbeiterstatus:</label>
+                <select id="filterStatus" class="filter-select">
+                    <option value="alle">Alle</option>
+                    <option value="false">Aktuell</option> {# is_former_employee == False #}
+                    <option value="true">Ehemalig</option> {# is_former_employee == True #}
+                </select>
+            </div>
+            </div>
+
+            <div class="sort-container">
+                <h3>Sortieren nach:</h3>
+                <select id="sortBewertungen" class="filter-select">
+                    <option value="neueste" {% if current_sort_option == 'neueste' %}selected{% endif %}>Neueste zuerst</option>
+                    <option value="sterne_asc" {% if current_sort_option == 'sterne_asc' %}selected{% endif %}>Sterne (aufsteigend)</option>
+                    <option value="sterne_desc" {% if current_sort_option == 'sterne_desc' %}selected{% endif %}>Sterne (absteigend)</option>
+                </select>
+            </div>
+        </div>
+
+        <h2>Neueste Bewertungen</h2>
+        {% if neueste_bewertungen_list %}
+            <div class="bewertung-karten-container">
+                {% for bewertung in neueste_bewertungen_list %}
+                <div class="bewertung-karte" 
+                     data-titel="{{ bewertung.titel if bewertung.titel else 'Kein Titel' }}"
+                     data-datum-display="{% if bewertung.datum_obj %}{{ bewertung.datum_obj.strftime('%d.%m.%Y') }}{% elif bewertung.datum %}{{ bewertung.datum.split('T')[0] }}{% else %}Unbekanntes Datum{% endif %}"
+                     data-sterne="{% if bewertung.sterne is not none %}★ {{ '%.1f'|format(bewertung.sterne) }}{% endif %}"
+                     data-text="{{ bewertung.text if bewertung.text else 'Kein Text vorhanden.' }}"
+                     data-review-type="{{ bewertung.review_type|default('', true) }}"
+                     data-is-former-employee="{{ bewertung.is_former_employee }}"
+                     data-is-recommended="{{ bewertung.is_recommended }}" {# Wird als String 'True'/'False'/'None' übergeben #}
+                     data-reviewer-position="{{ bewertung.reviewer_position|default('', true) }}"
+                     data-reviewer-department="{{ bewertung.reviewer_department|default('', true) }}"
+                     data-reviewed-entity-name="{{ bewertung.reviewed_entity_name|default('', true) }}"
+                     data-reviewer-city="{{ bewertung.reviewer_city|default('', true) }}"
+                     data-reviewer-state="{{ bewertung.reviewer_state|default('', true) }}"
+                     data-apprenticeship-job-title="{{ bewertung.apprenticeship_job_title|default('', true) }}"
+                     tabindex="0"> {# Macht das Div fokussierbar und per Enter klickbar #}
+                    <h4>{{ bewertung.titel if bewertung.titel else 'Kein Titel' }}</h4>
+                    
+                    <div class="bewertung-meta">
+                        <span class="datum">
+                            {% if bewertung.datum_obj %}
+                                {{ bewertung.datum_obj.strftime('%d.%m.%Y') }}
+                            {% elif bewertung.datum %}
+                                {{ bewertung.datum.split('T')[0] }} {# Fallback: Zeige nur den Datumsteil des Strings #}
+                            {% else %}
+                                Unbekanntes Datum
+                            {% endif %}
+                        </span>
+                        {% if bewertung.sterne is not none %}
+                        <span class="sterne">★ {{ "%.1f"|format(bewertung.sterne) }}</span>
+                        {% endif %}
+                        {# Korrigierte Anzeige für Empfehlung auf der Karte #}
+                        {% if bewertung.is_recommended == 'True' %}
+                            <span class="empfehlung empfohlen">Empfohlen</span>
+                        {% elif bewertung.is_recommended == 'False' %}
+                            <span class="empfehlung nicht-empfohlen">Nicht empfohlen</span>
+                        {% endif %}
+                        {# Korrigierter Check für ehemaligen Mitarbeiter auf der Karte #}
+                        {% if bewertung.is_former_employee == 'True' %}
+                            <span class="status-bewerter">Ehemalige:r</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="bewertung-details-vorschau">
+                        {% if bewertung.review_type == 'apprenticeship' and bewertung.apprenticeship_job_title %}
+                            <p><strong>Ausbildung:</strong> {{ bewertung.apprenticeship_job_title }}</p>
+                        {% elif bewertung.reviewer_position %}
+                            <p><strong>Position:</strong> {{ bewertung.reviewer_position }}</p>
+                        {% endif %}
+                        {% if bewertung.reviewer_department %}
+                            <p><strong>Abteilung:</strong> {{ bewertung.reviewer_department }}</p>
+                        {% endif %}
+                        {% if bewertung.reviewed_entity_name and bewertung.reviewed_entity_name != unternehmen_name %}
+                             <p><strong>Unternehmensteil:</strong> {{ bewertung.reviewed_entity_name }}</p>
+                        {% endif %}
+                        {% if bewertung.reviewer_city or bewertung.reviewer_state %}
+                            <p><strong>Standort:</strong> {{ bewertung.reviewer_city }}{% if bewertung.reviewer_city and bewertung.reviewer_state %}, {% endif %}{{ bewertung.reviewer_state }}</p>
+                        {% endif %}
+                    </div>
+
+                    {# Kurzer Textauszug direkt auf der Karte #}
+                    <p class="bewertung-text-vorschau">
+                        {{ (bewertung.text[:100] + '...' if bewertung.text and bewertung.text|length > 100 else bewertung.text if bewertung.text else 'Kein Text vorhanden.')|nl2br }}
+                    </p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Keine Bewertungen für dieses Unternehmen vorhanden.</p>
+        {% endif %}
+
+    </div>
+
+    <!-- Modal-Struktur -->
+    <div id="bewertungModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close-btn">&times;</span>
+            <h3 id="modalTitel"></h3>
+            <div id="modalMeta" class="bewertung-meta"></div>
+            <div id="modalReviewerStatus" class="reviewer-status-modal"></div>
+            <div id="modalDetails" class="bewertung-details-modal"></div> {# Neuer Container für Details im Modal #}
+            <p id="modalText"></p>
+        </div>
+    </div>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

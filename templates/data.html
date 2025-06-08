@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Gescrapte Daten</title>    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Gescrapte Unternehmen</h1>
+        <nav>
+            <a href="{{ url_for('index') }}">Startseite</a>
+            <a href="{{ url_for('add_profile_page') }}">Profil Hinzufügen</a>
+            <a href="{{ url_for('show_data') }}">Unternehmensübersicht</a>
+        </nav>
+        <hr>
+        {% if unternehmen_liste %}
+            <div class="unternehmen-karten-container">
+                {% for unternehmen in unternehmen_liste %}
+                <a href="{{ url_for('unternehmens_details', unternehmen_id=unternehmen.id) }}" class="unternehmen-karte">
+                    <h3>{{ unternehmen.name }}</h3>
+                </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Noch keine Unternehmen in der Datenbank vorhanden oder es gab einen Fehler beim Laden.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

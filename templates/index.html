@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Willkommen beim Kununu Scraper</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Willkommen beim Kununu Scraper!</h1>
+        <nav>
+            <a href="{{ url_for('index') }}">Startseite</a>
+            <a href="{{ url_for('add_profile_page') }}">Profil Hinzufügen</a>
+            <a href="{{ url_for('show_data') }}">Unternehmensübersicht</a>
+        </nav>
+        <hr>
+        <p>Dies ist dein Dashboard für das Scraping von Kununu-Bewertungen.</p>
+        <p>Nutze die Navigation, um neue Unternehmensprofile hinzuzufügen oder bereits gesammelte Daten einzusehen.</p>
+        
+        <div style="margin-top: 30px; text-align: center;">
+            <a href="{{ url_for('add_profile_page') }}" class="button-like-link">Neues Profil zum Scrapen hinzufügen</a>
+        </div>
+    </div>
+</body>
+</html>

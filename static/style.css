@@ -1,0 +1,451 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #121212; /* Dunkler Hintergrund für den Body */
+    color: #e0e0e0; /* Hellerer Text für guten Kontrast */
+}
+.container {
+    background-color: #161616; /* Etwas hellerer Hintergrund für Container */
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5); /* Angepasster Schatten für dunkles Design */
+    border: 1px solid #333; 
+    margin: 20px auto; /* Zentriert den Container horizontal und behält den oberen/unteren Abstand bei */
+}
+h1 {
+    color: #03dac6; /* Akzentfarbe Türkis für Hauptüberschriften */
+    border-bottom: 2px solid #333;
+    padding-bottom: 10px;
+}
+.form-group { margin-bottom: 12px; } /* Leicht reduziert */
+label { display: block; margin-bottom: 5px; font-weight: bold; }
+input[type="text"], input[type="url"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    border: 1px solid #3b3b3b; /* Dunklere Ränder für Eingabefelder */
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: #2c2c2c; /* Dunkler Hintergrund für Eingabefelder */
+    color: #e0e0e0; /* Heller Text in Eingabefeldern */
+}
+button {
+    padding: 8px 18px; /* Padding reduziert */
+    background-color: #03dac6; /* Akzentfarbe für Buttons (Beispiel: Türkis) */
+    color: #121212; /* Dunkler Text auf hellem Button für Kontrast */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+button:hover { background-color: #018786; /* Dunklere Hover-Farbe für Button */ }
+
+/* Stil für Links, die wie Buttons aussehen sollen */
+.button-like-link {
+    display: inline-block;
+    padding: 8px 18px; /* Padding reduziert */
+    background-color: #03dac6; /* Akzentfarbe (Türkis), passend zu Buttons */
+    color: #121212; /* Dunkler Text für Kontrast, passend zu Buttons */
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    text-align: center;
+    border: none; /* Kein Rand, wie bei Buttons */
+    cursor: pointer; /* Zeigt Klickbarkeit an, wie bei Buttons */
+}
+.button-like-link:hover { background-color: #018786; /* Dunklere Hover-Farbe, passend zu Buttons */ }
+
+.flash { padding: 10px; margin-top: 20px; margin-bottom: 15px; border-radius: 4px; }
+.flash.error { background-color: #cf6679; color: #121212; border: 1px solid #b00020; } /* Fehler bleibt rot */
+.flash.success { background-color: #00796b; color: #e0e0e0; border: 1px solid #004d40; } /* Türkis für Erfolgs-Flash */
+nav a { margin-right: 15px; color: #03dac6; text-decoration: none; font-weight: bold; } /* Links in Türkis */
+nav a:hover { text-decoration: underline; color: #03dac6; }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th, td { border: 1px solid #444; padding: 10px; text-align: left; }
+th { background-color: #004d40; color: #e0e0e0; } /* Dunkler Türkis-Header für Tabelle */
+tr:nth-child(even) { background-color: #2c2c2c; } /* Etwas hellerer Hintergrund für jede zweite Zeile */
+tr:hover { background-color: #3a3a3a; } /* Hover-Effekt für Tabellenzeilen */
+
+/* Stile für Unternehmenskarten */
+.unternehmen-karten-container {
+    display: flex;
+    flex-wrap: wrap; /* Erlaube Umbruch der Karten */
+    gap: 15px; /* Abstand reduziert */
+    margin-top: 20px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+/* Die Karte ist jetzt ein Link (<a>-Tag) */
+a.unternehmen-karte {
+    background-color: #2c2c2c; /* Hintergrund der Karte */
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 10px; /* Padding weiter reduziert */
+    width: calc(25% - 20px); /* Vier Karten pro Zeile, abzüglich Gap */
+    aspect-ratio: 1 / 1; /* Macht die Karte quadratisch */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    text-align: center;
+    text-decoration: none; /* Entfernt Unterstreichung vom Link */
+    color: #e0e0e0; /* Standardtextfarbe für die Karte */
+    display: flex; /* Ermöglicht Zentrierung des Inhalts */
+    flex-direction: column;
+    justify-content: center ; /* Zentriert Inhalt vertikal */
+    align-items: center; /* Zentriert Inhalt horizontal */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Sanfter Übergang für Hover */
+}
+a.unternehmen-karte:hover {
+    background-color: #3a3a3a; /* Etwas hellerer Hintergrund beim Hovern */
+    transform: translateY(-3px); /* Leichter Anhebe-Effekt */
+}
+
+a.unternehmen-karte h3 {
+    margin-top: 0;
+    margin-bottom: 0; /* Kein zusätzlicher Abstand für die Überschrift in der Karte */
+    color: #03dac6; /* Türkis für Kartentitel */
+    font-size: 1em; /* Schriftgröße angepasst für kleinere Karten */
+    /* Optional: Falls Titel zu lang werden und umbrechen sollen oder mit Ellipsen enden */
+    /* white-space: normal; */
+    /* overflow: hidden; */
+    /* text-overflow: ellipsis; */
+}
+
+/* Responsive Anpassung für verschiedene Bildschirmgrößen */
+@media (max-width: 992px) {
+    a.unternehmen-karte { /* Selektor korrigiert, um spezifischer zu sein */
+        width: calc(33.333% - 20px); /* Drei Karten pro Zeile */
+    }
+}
+@media (max-width: 768px) {
+    a.unternehmen-karte {
+        width: calc(50% - 20px); /* Zwei Karten pro Zeile */
+    }
+}
+@media (max-width: 576px) {
+    a.unternehmen-karte {
+        width: 100%; /* Eine Karte pro Zeile */
+    }
+}
+
+/* Stile für Bewertungskarten auf der Detailseite */
+.bewertung-karten-container {
+    display: flex; /* Ermöglicht nebeneinander liegende Karten */
+    flex-wrap: wrap; /* Erlaube Umbruch der Karten */
+    gap: 12px; /* Abstand reduziert */
+    margin-top: 20px;
+}
+
+.bewertung-karte {
+    background-color: #2c2c2c;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 10px; /* Padding weiter reduziert */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-sizing: border-box; /* Wichtig für korrekte Breitenberechnung */
+
+    /* Anpassung für nebeneinander liegende Karten */
+    /* Standard: Drei Karten pro Zeile. Gap = 12px. (2 * 12px) / 3 = 8px Abzug pro Karte */
+    width: calc(33.333% - 8px); 
+    min-width: 260px; /* Mindestbreite reduziert */
+    /* flex: 1 0 calc(33.333% - 10px); // Alternative mit flex-grow/shrink */
+    cursor: pointer; /* Zeigt an, dass die Karte klickbar ist */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Sanfter Übergang für Hover */
+}
+
+.bewertung-karte h4 { /* Titel der Bewertung */
+    color: #03dac6; /* Akzentfarbe Türkis für Bewertungstitel */
+    margin-top: 0;
+    margin-bottom: 6px; /* Reduziert */
+    font-size: 1.1em;
+}
+
+.bewertung-meta {
+    font-size: 0.9em;
+    color: #aaa;
+    margin-bottom: 10px;
+}
+
+.bewertung-meta .sterne {
+    color: #fdd835; /* Gelb für Sterne */
+    margin-left: 10px;
+}
+
+.bewertung-meta .empfehlung {
+    margin-left: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+.empfehlung.empfohlen { background-color: #28a745; color: white; } /* Grün für empfohlen */
+.empfehlung.nicht-empfohlen { background-color: #dc3545; color: white; } /* Rot für nicht empfohlen */
+.bewertung-meta .status-bewerter {
+    margin-left: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: #6c757d; /* Grau für Status */
+    color: white;
+    font-size: 0.8em;
+}
+
+.bewertung-text-vorschau { /* Angepasst für den Vorschautext auf der Karte */
+    font-size: 0.95em;
+    line-height: 1.6;
+    color: #d0d0d0; /* Etwas hellerer Text für bessere Lesbarkeit */
+    overflow: hidden; /* Verhindert, dass Text überläuft */
+    /* max-height: 4.8em; */ /* Ca. 3 Zeilen, abhängig von line-height */
+    /* text-overflow: ellipsis; */ /* Funktioniert nur bei white-space: nowrap, was hier nicht ideal ist */
+}
+
+.bewertung-details-vorschau p,
+.bewertung-details-modal p {
+    font-size: 0.85em;
+    color: #b0b0b0;
+    margin: 5px 0;
+}
+.bewertung-details-vorschau p strong,
+.bewertung-details-modal p strong {
+    color: #c0c0c0;
+}
+
+/* Entferne Stile für ausklappbaren Text, da wir jetzt ein Modal verwenden */
+.bewertung-text-full {
+    display: none; /* Vollständiger Text ist standardmäßig ausgeblendet */
+}
+/*
+.read-more-btn {
+    background: none;
+    border: none;
+    color: #03dac6;
+    cursor: pointer;
+    padding: 5px 0;
+    text-decoration: underline;
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+*/
+/* Responsive Anpassung für Bewertungskarten */
+@media (max-width: 992px) { /* Für Tablets und kleinere Desktops */
+    .bewertung-karte {
+        /* Zwei Karten pro Zeile. Gap = 15px. (1 * 15px) / 2 = 7.5px Abzug pro Karte */
+        width: calc(50% - 7.5px);
+    }
+}
+
+@media (max-width: 768px) {
+    .bewertung-karte {
+        /* Eine Karte pro Zeile auf kleineren Bildschirmen */
+        width: 100%;
+    }
+}
+
+#profilVerlaufChart {
+    max-height: 400px; /* Oder eine andere passende Höhe */
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+/* Neuer Hauptcontainer für Statistiken und Verlaufsgrafik */
+.uebersicht-header {
+    display: flex;
+    flex-wrap: wrap; /* Erlaube Umbruch */
+    gap: 15px; /* Abstand weiter reduziert */
+    margin-top: 20px;
+    margin-bottom: 30px;
+    align-items: flex-start; /* Verhindert das Strecken der Kind-Elemente auf die gleiche Höhe */
+    }
+
+.statistiken-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px; /* Abstand weiter reduziert */
+    flex: 1 1 340px; /* Basisbreite weiter reduziert */
+    /* align-items: stretch; */ /* Sorgt dafür, dass alle stat-blocks gleich hoch sind, falls gewünscht */
+}
+
+.stat-block {
+    background-color: #2a2a2a;
+    padding: 15px; /* Padding reduziert */
+    border-radius: 8px;
+    border: 1px solid #383838;
+    text-align: center;
+    flex: 1 1 140px; /* Erlaubt Wachstum, Schrumpfen, Basisbreite für jeden Stat-Block */
+    min-width: 150px; /* Mindestbreite für einen Statistik-Block */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.stat-block h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1em;
+    color: #03dac6; /* Türkis für Statistik-Überschriften */
+}
+
+.stat-wert {
+    font-size: 2em; /* Schriftgröße reduziert */
+    font-weight: bold;
+    color: #e0e0e0;
+    margin-bottom: 5px;
+}
+
+.stat-wert.recommendation-wert {
+    color: #28a745; /* Grün für Empfehlungsrate */
+}
+
+.stat-label {
+    font-size: 0.9em;
+    color: #aaa;
+}
+
+.verlaufsgrafik-container {
+    flex: 2 1 400px; /* Basisbreite weiter reduziert */
+    background-color: #2a2a2a;
+    padding: 15px; /* Padding reduziert */
+    border-radius: 8px;
+    border: 1px solid #383838;
+}
+.verlaufsgrafik-container h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #03dac6; /* Türkis für Grafik-Überschrift */
+}
+.verlaufsgrafik-container canvas {
+    width: 100% !important; 
+    max-height: 400px; 
+}
+
+/* Stile für die Donut-Chart innerhalb des .stat-block */
+.durchschnitt-grafik-container {
+    width: 120px; /* Donut-Chart noch etwas kleiner */
+    height: 60px;  /* Höhe angepasst */
+    margin: 0 auto; 
+    position: relative; 
+}
+.durchschnitt-grafik-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Auf kleineren Bildschirmen sollen die Grafiken untereinander stehen */
+@media (max-width: 800px) { /* Haltepunkt anpassen nach Bedarf */
+    .uebersicht-header {
+        flex-direction: column; /* Elemente untereinander anordnen */
+        align-items: center; /* Zentriert die Items, wenn sie untereinander sind */
+    }
+    .statistiken-container, .verlaufsgrafik-container {
+        flex-basis: 100%; 
+        max-width: 100%; /* Auf kleinen Screens volle Breite erlauben */
+        min-width: unset; /* min-width zurücksetzen, um volle Breite zu erlauben */
+        width: 100%;
+    }
+    .durchschnitt-grafik-container { /* Sicherstellen, dass Donut zentriert bleibt */
+        margin: 0 auto 20px auto; /* Oben/Unten Abstand, zentriert */
+    }
+}
+
+/* Modal Stile */
+.modal {
+    display: none; /* Standardmäßig ausgeblendet */
+    position: fixed; /* Bleibt an Ort und Stelle beim Scrollen */
+    z-index: 1000; /* Über anderen Elementen */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Scrollen im Modal ermöglichen, falls Inhalt zu lang */
+    background-color: rgba(0,0,0,0.7); /* Halbtransparenter Hintergrund */
+    padding-top: 60px; /* Platz oben für das Modal-Fenster */
+}
+
+.modal-content {
+    background-color: #1e1e1e; /* Gleicher Hintergrund wie Container */
+    margin: 5% auto; /* Zentriert und mit Abstand oben/unten */
+    padding: 25px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    width: 85%; /* Breite des Modals relativ zum Viewport, etwas schmaler */
+    max-width: 600px; /* Maximale Breite weiter reduziert */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    position: relative;
+    color: #e0e0e0;
+}
+
+.modal-close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.reviewer-status-modal p {
+    font-size: 0.9em;
+    color: #c0c0c0;
+    margin: 0 0 10px 0;
+}
+
+.bewertung-details-modal {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #333;
+}
+.modal-close-btn:hover,
+.modal-close-btn:focus {
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#modalText {
+    white-space: pre-wrap; /* Erhält Zeilenumbrüche und Leerzeichen aus dem Text */
+    line-height: 1.7;
+}
+
+/* Container für Filter- und Sortier-Aktionen */
+.actions-container {
+    display: flex;
+    flex-wrap: wrap; /* Erlaube Umbruch auf kleineren Bildschirmen */
+    gap: 15px; /* Abstand weiter reduziert */
+    margin-bottom: 30px; /* Etwas mehr Abstand nach unten */
+    align-items: flex-start; /* Wichtig, falls die Boxen unterschiedlich hoch werden */
+}
+
+.filter-container, .sort-container {
+    background-color: #2a2a2a; /* Etwas anderer Hintergrund zur Abgrenzung */
+    padding: 15px; /* Padding reduziert */
+    border-radius: 8px;
+    border: 1px solid #383838;
+    flex: 1 1 220px; /* Basisbreite angepasst */
+    min-width: 240px; /* Mindestbreite reduziert */
+}
+
+.filter-container h3, .sort-container h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #03dac6; /* Türkis für Filter/Sortier-Überschriften */
+}
+
+.filter-group {
+    display: inline-block; /* Erlaubt Filtergruppen nebeneinander zu fließen */
+    margin-right: 15px; /* Abstand weiter reduziert */
+    margin-bottom: 15px; /* Abstand nach unten, falls sie umbrechen oder die letzte in der Zeile ist */
+    vertical-align: top; /* Stellt sicher, dass sie oben ausgerichtet sind, wenn sie unterschiedliche Höhen haben */
+}
+
+.filter-group label {
+    display: block; /* Label über dem Select-Feld */
+    margin-bottom: 6px; /* Kleiner Abstand zum Select-Feld */
+    color: #c0c0c0;
+    font-size: 0.9em;
+}
+
+/* Gemeinsame Stile für alle Select-Boxen in diesem Bereich, Selektor angepasst */
+.actions-container select {
+    padding: 7px 9px; /* Padding reduziert */
+    border-radius: 4px;
+    border: 1px solid #444;
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    /* min-width: 160px; // Entfernt, da width: 100% im .filter-group oder .sort-container greift */
+    width: 100%; /* Nimmt die Breite der .filter-group oder .sort-container ein */
+    box-sizing: border-box;
+}

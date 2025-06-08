@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Neues Profil Hinzufügen - Kununu Scraper</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">    
+</head>
+<body>
+    <div class="container">
+        <h1>Neues Kununu Profil Hinzufügen</h1>
+        <nav>
+            <a href="{{ url_for('index') }}">Startseite</a>
+            <a href="{{ url_for('add_profile_page') }}">Profil Hinzufügen</a>
+            <a href="{{ url_for('show_data') }}">Unternehmensübersicht</a>
+        </nav>
+        <hr>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        <form action="{{ url_for('scrape') }}" method="post">
+            <div class="form-group"><label for="profil_uebersicht_url">Kununu Profil-URL (z.B. https://www.kununu.com/de/firmenname):</label><input type="url" id="profil_uebersicht_url" name="profil_uebersicht_url" required></div>
+            <button type="submit">Scraping starten</button>
+        </form>
+    </div>
+</body>
+</html>
