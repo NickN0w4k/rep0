@@ -654,8 +654,8 @@ if __name__ == '__main__':
     # setup_database() # Nur einmalig oder bei Bedarf ausführen
 
     test_unternehmen_name = "Zentek"
-    test_profil_uebersicht_url = "https://www.kununu.com/de/zentek2"
-    test_profil_kommentare_url = "https://www.kununu.com/de/zentek2/kommentare?sort=newest" 
+    test_profil_uebersicht_url = "https://www.kununu.com/de/sap"
+    test_profil_kommentare_url = "https://www.kununu.com/de/sap/kommentare?sort=newest" 
 
     print(f"Starte Kununu-Scraper für: {test_unternehmen_name}")
     main_scraper(test_unternehmen_name, test_profil_uebersicht_url, test_profil_kommentare_url)

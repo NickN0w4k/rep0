@@ -25,7 +25,7 @@ Dieses Projekt ist ein Web-Scraper, der Daten von Kununu-Unternehmensprofilen sa
 
 1.  **Klone das Repository (optional, falls du es bereits hast):**
     ```bash
-    git clone <repository-url>
+    git clone https://github.com/NickN0w4k/rep0.git
     cd rep0
     ```
 
