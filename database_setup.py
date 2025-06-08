@@ -35,35 +35,46 @@ def setup_database():
         )
     ''')
 
-    # 4. Tabelle für einzelne Bewertungen (unverändert)
+    # 4. Tabelle für einzelne Bewertungen (überarbeitet für mehrere Plattformen)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS bewertungen (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             profil_id INTEGER,
             sterne REAL,
             titel TEXT,
-            text TEXT, -- Volltext der Bewertung (kann aus mehreren Teilen bestehen)
-            datum TEXT, -- Speichert das von Kununu gelieferte Datum (z.B. ISO-String)
-            bewertung_hash TEXT, -- Hash zur eindeutigen Identifizierung der Bewertung
+            text TEXT, 
+            datum TEXT, -- Veröffentlichungsdatum (Kununu: createdAt/datum, Trustpilot: dates.publishedDate)
+            platform_review_id TEXT, -- Eindeutige ID der Bewertung auf der Plattform (Kununu: UUID, Trustpilot: id)
+            
             scraping_datum DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updated_at_kununu TEXT, -- NEU: Kununus 'updatedAt' Zeitstempel
-            last_seen_scraping_datum DATETIME, -- NEU: Wann zuletzt beim Scrapen gesehen
-            is_deleted BOOLEAN DEFAULT 0, -- NEU: 0 = aktiv, 1 = gelöscht
-            is_former_employee BOOLEAN, -- NEU: Ob der Bewerter ein ehemaliger Mitarbeiter ist
-            review_type TEXT, -- z.B. 'employer', 'apprenticeship'
+            platform_data_updated_at TEXT, -- Kununus 'updatedAt' oder Trustpilots 'dates.updatedDate'
+            last_seen_scraping_datum DATETIME, 
+            is_deleted BOOLEAN DEFAULT 0, 
+
+            -- Kununu-spezifische Felder (können für Trustpilot NULL sein)
+            is_former_employee BOOLEAN, 
+            review_type TEXT, -- z.B. 'employer', 'apprenticeship' (Kununu)
             is_recommended BOOLEAN,
             reviewer_position TEXT,
             reviewer_department TEXT,
-            reviewed_entity_name TEXT, -- Name der spezifischen Unternehmenseinheit
-            reviewed_entity_uuid TEXT, -- UUID der spezifischen Unternehmenseinheit
+            reviewed_entity_name TEXT, 
+            reviewed_entity_uuid TEXT, 
             reviewer_city TEXT,
             reviewer_state TEXT,
-            apprenticeship_job_title TEXT, -- Für Ausbildungsbewertungen
+            apprenticeship_job_title TEXT, 
+
+            -- Trustpilot-spezifische Felder (können für Kununu NULL sein)
+            consumer_display_name TEXT, -- Trustpilot: review.consumer.displayName
+            date_of_experience TEXT,    -- Trustpilot: review.dates.experiencedDate
+            review_language TEXT,       -- Trustpilot: review.language
+            review_source TEXT,         -- Trustpilot: review.source
+            review_likes INTEGER,       -- Trustpilot: review.likes
+            is_verified_by_platform BOOLEAN, -- Trustpilot: review.labels.verification.isVerified
+
             FOREIGN KEY (profil_id) REFERENCES unternehmens_profile (id),
-            UNIQUE (profil_id, bewertung_hash) -- Stellt sicher, dass jede Bewertung pro Profil eindeutig ist
+            UNIQUE (profil_id, platform_review_id) -- Stellt sicher, dass jede Bewertung pro Profil eindeutig ist
         )
     ''')
-
     # 6. NEUE Tabelle für einzelne Bewertungsfaktoren und deren Sterne
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS bewertung_faktoren (

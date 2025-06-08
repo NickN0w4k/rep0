@@ -7,7 +7,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Neues Kununu Profil Hinzufügen</h1>
+        <h1>Neues Unternehmensprofil Hinzufügen</h1>
         <nav>
             <a href="{{ url_for('index') }}">Startseite</a>
             <a href="{{ url_for('add_profile_page') }}">Profil Hinzufügen</a>
@@ -21,10 +21,40 @@
             {% endfor %}
           {% endif %}
         {% endwith %}
-        <form action="{{ url_for('scrape') }}" method="post">
-            <div class="form-group"><label for="profil_uebersicht_url">Kununu Profil-URL (z.B. https://www.kununu.com/de/firmenname):</label><input type="url" id="profil_uebersicht_url" name="profil_uebersicht_url" required></div>
-            <button type="submit">Scraping starten</button>
+        <form action="{{ url_for('scrape') }}" method="post" id="addProfileForm">
+            <div class="form-group">
+                <label for="unternehmen_name">Unternehmensname:</label>
+                <input type="text" id="unternehmen_name" name="unternehmen_name" required>
+            </div>
+            <div class="form-group">
+                <label for="kununu_url">Kununu Profil-URL (optional):</label>
+                <input type="url" id="kununu_url" name="kununu_url" placeholder="z.B. https://www.kununu.com/de/firmenname">
+            </div>
+            <div class="form-group">
+                <label for="trustpilot_url">Trustpilot Profil-URL (optional):</label>
+                <input type="url" id="trustpilot_url" name="trustpilot_url" placeholder="z.B. https://www.trustpilot.com/review/firmenname.de">
+            </div>
+            <button type="submit" id="submitButton">Scraping starten</button>
+            <div id="loadingIndicator" style="display:none; margin-top: 10px; color: #03dac6;">
+                Scraping wird ausgeführt... Bitte warten. Dieser Vorgang kann einige Minuten dauern.
+            </div>
         </form>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('addProfileForm');
+            const submitButton = document.getElementById('submitButton');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+
+            form.addEventListener('submit', function() {
+                // Nur den Ladeindikator anzeigen, wenn tatsächlich eine URL eingegeben wurde, die ein Scraping auslöst.
+                if (document.getElementById('kununu_url').value || document.getElementById('trustpilot_url').value) {
+                    if (loadingIndicator) loadingIndicator.style.display = 'block';
+                    if (submitButton) submitButton.disabled = true;
+                }
+            });
+        });
+    </script>
 </body>
 </html>

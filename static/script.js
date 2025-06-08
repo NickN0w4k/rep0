@@ -56,6 +56,10 @@ document.addEventListener('DOMContentLoaded', function () {
             // Text mit nl2br-ähnlicher Funktionalität (ersetzt \n mit <br>)
             modalText.innerHTML = this.dataset.text.replace(/\n/g, '<br>');
             modal.style.display = 'block';
+            // Kurze Verzögerung, um den CSS-Übergang für das Modal zu ermöglichen
+            setTimeout(() => {
+                modal.classList.add('active');
+            }, 10); // 10ms sollten reichen, um den display-Wechsel zu verarbeiten
         });
 
         // Für Tastaturbedienung (Enter-Taste)
@@ -68,7 +72,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (modalCloseBtn) {
         modalCloseBtn.onclick = function() {
-            modal.style.display = 'none';
+            modal.classList.remove('active');
+            // Warte, bis der Übergang beendet ist, bevor das Display auf none gesetzt wird
+            setTimeout(() => { modal.style.display = 'none'; }, 300); // 300ms entspricht der CSS-Transition-Dauer
         }
     }
     // Schließen des Modals, wenn außerhalb geklickt wird
@@ -78,105 +84,121 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Chart für Profilverlauf
-    const chartCanvas = document.getElementById('profilVerlaufChart');
-    if (chartCanvas) {
-        // Die Daten werden vom Template als JSON-String in einem data-Attribut erwartet
-        // oder direkt in ein <script>-Tag im HTML geschrieben.
-        // Hier gehen wir davon aus, dass die Daten im HTML verfügbar sind.
-        // Wir müssen die Daten aus dem Python-Kontext in den JS-Kontext bekommen.
-        // Eine Möglichkeit ist, sie in ein <script>-Tag im HTML zu schreiben:
-        // <script>
-        //  const chartData = {{ chart_profil_verlauf_data|tojson|safe }};
-        // </script>
-        // Und dann hier darauf zuzugreifen:
-        // if (typeof chartData !== 'undefined' && chartData.length > 1) { ... }
+    // Funktion zum Erstellen eines Profilverlauf-Linien-Charts
+    function createProfileHistoryChart(canvasId, chartData, platformName) {
+        const historyChartCanvas = document.getElementById(canvasId);
+        if (!historyChartCanvas) {
+            console.warn(`Canvas mit ID ${canvasId} für Verlaufschart nicht gefunden.`);
+            return;
+        }
+        if (typeof chartData === 'undefined' || chartData === null || chartData.length <= 1) {
+            console.warn(`Nicht genügend Daten für Verlaufschart ${canvasId} vorhanden.`);
+            // Optional: Canvas leeren oder Platzhalter anzeigen
+            return;
+        }
 
-        // Da wir die Daten direkt im Template rendern, können wir sie hier extrahieren,
-        // wenn sie in einem data-Attribut des Canvas gespeichert wären, oder wir greifen
-        // auf eine globale Variable zu, die im HTML-Template gesetzt wurde.
-        // Für dieses Beispiel gehen wir davon aus, dass `chartVerlaufData` global verfügbar ist
-        // (siehe Anpassung im HTML unten)
+        const labels = chartData.map(item => {
+            const date = new Date(item.scraping_datum);
+            return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        });
+        const durchschnittData = chartData.map(item => item.gesamtdurchschnitt);
+        const anzahlData = chartData.map(item => item.anzahl_bewertungen_gesamt);
 
-        if (typeof profilVerlaufChartData !== 'undefined' && profilVerlaufChartData.length > 1) {
-            const labels = profilVerlaufChartData.map(item => {
-                // Datum formatieren, falls es als String kommt und nicht schon Date-Objekt ist
-                const date = new Date(item.scraping_datum);
-                return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            });
-            const durchschnittData = profilVerlaufChartData.map(item => item.gesamtdurchschnitt);
-            const anzahlData = profilVerlaufChartData.map(item => item.anzahl_bewertungen_gesamt);
+        const yDurchschnittLabel = `${platformName} Durchschnitt`;
+        const yAnzahlLabel = `${platformName} Bewertungen`;
 
-            new Chart(chartCanvas, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Gesamtdurchschnitt',
-                        data: durchschnittData,
-                        borderColor: 'rgb(187, 134, 252)', // Lila
-                        tension: 0.1,
-                        yAxisID: 'yDurchschnitt'
-                    }, {
-                        label: 'Anzahl Bewertungen',
-                        data: anzahlData,
-                        borderColor: 'rgb(3, 218, 198)', // Türkis
-                        tension: 0.1,
-                        yAxisID: 'yAnzahl'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false, // Erlaubt dem Chart, die Höhe des Canvas zu nutzen
-                    scales: {
-                        yDurchschnitt: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            title: { display: true, text: 'Durchschnitt' },
-                            min: 0, // Oder einen passenderen Minimalwert
-                            max: 5  // Kununu-Bewertungen gehen bis 5
-                        },
-                        yAnzahl: {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            title: { display: true, text: 'Anzahl Bewertungen' },
-                            grid: { drawOnChartArea: false }, // Nur die Haupt-Gridlines anzeigen
-                            min: 0 // Oder einen passenderen Minimalwert
-                        },
-                        x: {
-                            title: { display: true, text: 'Datum des Scrapings' }
-                        }
+        new Chart(historyChartCanvas, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: yDurchschnittLabel,
+                    data: durchschnittData,
+                    borderColor: 'rgb(187, 134, 252)', // Lila
+                    tension: 0.1,
+                    yAxisID: 'yDurchschnitt'
+                }, {
+                    label: yAnzahlLabel,
+                    data: anzahlData,
+                    borderColor: 'rgb(3, 218, 198)', // Türkis
+                    tension: 0.1,
+                    yAxisID: 'yAnzahl'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    yDurchschnitt: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: 'Durchschnitt' },
+                        min: 0,
+                        max: 5
                     },
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                        }
+                    yAnzahl: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: 'Anzahl Bewertungen' },
+                        grid: { drawOnChartArea: false },
+                        min: 0
+                    },
+                    x: {
+                        title: { display: true, text: 'Datum des Scrapings' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
                     }
                 }
-            });
-        }
+            }
+        });
     }
 
-    // Chart für aktuellen Gesamtdurchschnitt (Donut)
-    const donutChartCanvas = document.getElementById('gesamtdurchschnittDonutChart');
-    if (donutChartCanvas && typeof aktuellerDurchschnittForDonut !== 'undefined' && aktuellerDurchschnittForDonut !== null) {
-        const restWert = maxSkalaForDonut - aktuellerDurchschnittForDonut;
+    // Initialisiere Kununu Profilverlauf Chart
+    // Die Variable kununuProfilVerlaufChartData wird im HTML-Template global definiert
+    if (typeof kununuProfilVerlaufChartData !== 'undefined') {
+        createProfileHistoryChart('kununuProfilVerlaufChart', kununuProfilVerlaufChartData, 'Kununu');
+    }
 
-        new Chart(donutChartCanvas, {
+    // Initialisiere Trustpilot Profilverlauf Chart
+    // Die Variable trustpilotProfilVerlaufChartData wird im HTML-Template global definiert
+    if (typeof trustpilotProfilVerlaufChartData !== 'undefined') {
+        createProfileHistoryChart('trustpilotProfilVerlaufChart', trustpilotProfilVerlaufChartData, 'Trustpilot');
+    }
+
+
+    // Funktion zum Erstellen eines Donut-Charts
+    function createDonutChart(canvasId, currentScore, maxScore, scoreLabel) {
+        const donutCanvas = document.getElementById(canvasId);
+        if (!donutCanvas) {
+            console.warn(`Canvas mit ID ${canvasId} nicht gefunden.`);
+            return;
+        }
+        if (typeof currentScore === 'undefined' || currentScore === null) {
+            console.warn(`Kein aktueller Score für Chart ${canvasId} vorhanden.`);
+            // Optional: Canvas leeren oder Platzhalter anzeigen
+            return;
+        }
+
+        const restWert = maxScore - currentScore;
+
+        new Chart(donutCanvas, {
             type: 'doughnut',
             data: {
-                labels: ['Durchschnitt', 'Rest'],
+                labels: [scoreLabel || 'Schnitt', 'Rest'],
                 datasets: [{
-                    label: 'Gesamtdurchschnitt',
-                    data: [aktuellerDurchschnittForDonut, restWert > 0 ? restWert : 0],
+                    label: scoreLabel || 'Aktueller Schnitt',
+                    data: [currentScore, restWert > 0 ? restWert : 0],
                     backgroundColor: [
-                        'rgb(3, 218, 198)',  // Türkis für den Durchschnitt
+                        'rgb(3, 218, 198)',  // Türkis für den Score
                         'rgba(255, 255, 255, 0.1)' // Heller, transparenter Hintergrund für den Rest
                     ],
                     borderColor: [
@@ -184,42 +206,54 @@ document.addEventListener('DOMContentLoaded', function () {
                         'rgba(255, 255, 255, 0.2)'
                     ],
                     borderWidth: 1,
-                    circumference: 180, // Halber Donut
-                    rotation: 270,      // Startet unten
+                    circumference: 180, // Halber Donut (optional, kann auch ein voller sein)
+                    rotation: 270,      // Startet unten (optional)
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false, // Erlaubt dem CSS, die Größe und das Seitenverhältnis vollständig zu kontrollieren.
-                                          // Wichtig: Der Container muss dann die korrekten Proportionen haben.
+                maintainAspectRatio: false,
                 cutout: '70%',
                 plugins: {
                     legend: { display: false },
                     tooltip: { enabled: false },
                     customCanvasBackgroundColor : { 
-                        text: aktuellerDurchschnittForDonut.toFixed(1)
+                        text: currentScore.toFixed(1) // Zeigt den Wert mit einer Dezimalstelle
                     }
                 }
             },
             plugins: [{
                 id: 'doughnutText',
                 afterDraw(chart, args, options) {
-                    const {ctx, chartArea: {top, bottom, left, right, width, height}, options: {plugins}} = chart;
-                    if (plugins.customCanvasBackgroundColor && plugins.customCanvasBackgroundColor.text) {
+                    const {ctx, chartArea: {top, left, width, height}, options: {plugins}} = chart;
+                    const customText = plugins?.customCanvasBackgroundColor?.text;
+                    if (customText) {
                         ctx.save();
-                        const text = plugins.customCanvasBackgroundColor.text;
                         ctx.font = 'bold 30px Arial';
                         ctx.fillStyle = 'rgb(3, 218, 198)';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
                         const x = left + width / 2;
-                        const y = top + height * 0.75; 
-                        ctx.fillText(text, x, y);
+                        // Y-Position anpassen, wenn es ein halber Donut ist, der unten startet
+                        const yPositionFactor = chart.config.data.datasets[0].circumference === 180 && chart.config.data.datasets[0].rotation === 270 ? 0.75 : 0.5;
+                        const y = top + height * yPositionFactor; 
+                        ctx.fillText(customText, x, y);
                         ctx.restore();
                     }
                 }
             }]
         });
+    }
+
+    // Initialisiere Kununu Donut Chart, wenn Daten vorhanden sind
+    // Die Variablen aktuellerKununuSchnittForDonut und maxSkalaKununu werden im HTML-Template global definiert
+    if (typeof aktuellerKununuSchnittForDonut !== 'undefined') {
+        createDonutChart('kununuDurchschnittDonutChart', aktuellerKununuSchnittForDonut, maxSkalaKununu, 'Kununu');
+    }
+
+    // Initialisiere Trustpilot Donut Chart, wenn Daten vorhanden sind
+    if (typeof aktuellerTrustpilotSchnittForDonut !== 'undefined') {
+        createDonutChart('trustpilotDurchschnittDonutChart', aktuellerTrustpilotSchnittForDonut, maxSkalaTrustpilot, 'Trustpilot');
     }
 
     // Filter-Logik für Bewertungen

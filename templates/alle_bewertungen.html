@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Alle Bewertungen für {{ unternehmen_name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Alle Bewertungen für: {{ unternehmen_name }}</h1>
+        <div style="margin-bottom: 15px;">
+            <a href="{{ url_for('unternehmens_details', unternehmen_id=unternehmen_id) }}" class="button-like-link">&laquo; Zurück</a>
+        </div>
+        <hr>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="get" action="{{ url_for('alle_bewertungen', unternehmen_id=unternehmen_id) }}" id="filterSortFormAlleBewertungen">
+            <div class="actions-container">
+                <div class="filter-container">
+                    <h3>Bewertungen filtern:</h3>
+                    <div class="filter-group">
+                        <label for="filterEmpfehlung">Empfehlung:</label>
+                        <select id="filterEmpfehlung" name="empfehlung" class="filter-select" onchange="this.form.submit()">
+                            <option value="alle" {% if current_filter_empfehlung == 'alle' %}selected{% endif %}>Alle</option>
+                            <option value="true" {% if current_filter_empfehlung == 'true' %}selected{% endif %}>Empfohlen</option>
+                            <option value="false" {% if current_filter_empfehlung == 'false' %}selected{% endif %}>Nicht empfohlen</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterStatus">Mitarbeiterstatus:</label>
+                        <select id="filterStatus" name="status" class="filter-select" onchange="this.form.submit()">
+                            <option value="alle" {% if current_filter_status == 'alle' %}selected{% endif %}>Alle</option>
+                            <option value="false" {% if current_filter_status == 'false' %}selected{% endif %}>Aktuell</option>
+                            <option value="true" {% if current_filter_status == 'true' %}selected{% endif %}>Ehemalig</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="sort-container">
+                    <h3>Sortieren nach:</h3>
+                    <select id="sortBewertungen" name="sort" class="filter-select" onchange="this.form.submit()">
+                        <option value="neueste" {% if current_sort_option == 'neueste' %}selected{% endif %}>Neueste zuerst</option>
+                        <option value="sterne_asc" {% if current_sort_option == 'sterne_asc' %}selected{% endif %}>Sterne (aufsteigend)</option>
+                        <option value="sterne_desc" {% if current_sort_option == 'sterne_desc' %}selected{% endif %}>Sterne (absteigend)</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+        <hr style="margin-top: 10px; margin-bottom: 20px;">
+
+        <p>Zeige {{ bewertungen_list|length }} von {{ total_reviews_count_filtered }} Bewertungen (Seite {{ current_page }} von {{ total_pages }})</p>
+
+        {% if bewertungen_list %}
+            <div class="bewertung-karten-container">
+                {% for bewertung in bewertungen_list %}
+                <div class="bewertung-karte" 
+                     data-titel="{{ bewertung.titel if bewertung.titel else 'Kein Titel' }}"
+                     data-datum-display="{% if bewertung.datum_obj %}{{ bewertung.datum_obj.strftime('%d.%m.%Y') }}{% elif bewertung.datum %}{{ bewertung.datum.split('T')[0] }}{% else %}Unbekanntes Datum{% endif %}"
+                     data-sterne="{% if bewertung.sterne is not none %}★ {{ '%.1f'|format(bewertung.sterne) }}{% endif %}"
+                     data-text="{{ bewertung.text if bewertung.text else 'Kein Text vorhanden.' }}"
+                     data-review-type="{{ bewertung.review_type|default('', true) }}"
+                     data-is-former-employee="{{ bewertung.is_former_employee }}"
+                     data-is-recommended="{{ bewertung.is_recommended }}"
+                     data-reviewer-position="{{ bewertung.reviewer_position|default('', true) }}"
+                     data-reviewer-department="{{ bewertung.reviewer_department|default('', true) }}"
+                     data-reviewed-entity-name="{{ bewertung.reviewed_entity_name|default('', true) }}"
+                     data-reviewer-city="{{ bewertung.reviewer_city|default('', true) }}"
+                     data-reviewer-state="{{ bewertung.reviewer_state|default('', true) }}"
+                     data-apprenticeship-job-title="{{ bewertung.apprenticeship_job_title|default('', true) }}"
+                     tabindex="0">
+                    <h4>{{ bewertung.titel if bewertung.titel else 'Kein Titel' }}</h4>
+                    <div class="bewertung-meta">
+                        <span class="datum">
+                            {% if bewertung.datum_obj %}{{ bewertung.datum_obj.strftime('%d.%m.%Y') }}{% elif bewertung.datum %}{{ bewertung.datum.split('T')[0] }}{% else %}Unbekanntes Datum{% endif %}
+                        </span>
+                        {% if bewertung.sterne is not none %}<span class="sterne">★ {{ "%.1f"|format(bewertung.sterne) }}</span>{% endif %}
+                        {% if bewertung.is_recommended == 'True' %}<span class="empfehlung empfohlen">Empfohlen</span>{% elif bewertung.is_recommended == 'False' %}<span class="empfehlung nicht-empfohlen">Nicht empfohlen</span>{% endif %}
+                        {% if bewertung.is_former_employee == 'True' %}<span class="status-bewerter">Ehemalige:r</span>{% endif %}
+                    </div>
+                    <div class="bewertung-details-vorschau">
+                        {% if bewertung.review_type == 'apprenticeship' and bewertung.apprenticeship_job_title %}<p><strong>Ausbildung:</strong> {{ bewertung.apprenticeship_job_title }}</p>{% elif bewertung.reviewer_position %}<p><strong>Position:</strong> {{ bewertung.reviewer_position }}</p>{% endif %}
+                        {% if bewertung.reviewer_department %}<p><strong>Abteilung:</strong> {{ bewertung.reviewer_department }}</p>{% endif %}
+                        {% if bewertung.reviewed_entity_name and bewertung.reviewed_entity_name != unternehmen_name %}<p><strong>Unternehmensteil:</strong> {{ bewertung.reviewed_entity_name }}</p>{% endif %}
+                        {% if bewertung.reviewer_city or bewertung.reviewer_state %}<p><strong>Standort:</strong> {{ bewertung.reviewer_city }}{% if bewertung.reviewer_city and bewertung.reviewer_state %}, {% endif %}{{ bewertung.reviewer_state }}</p>{% endif %}
+                    </div>
+                    <p class="bewertung-text-vorschau">{{ (bewertung.text[:100] + '...' if bewertung.text and bewertung.text|length > 100 else bewertung.text if bewertung.text else 'Kein Text vorhanden.')|nl2br }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="pagination">
+                {% if total_pages > 1 %}
+                    {% if current_page > 1 %}
+                        <a href="{{ url_for('alle_bewertungen', unternehmen_id=unternehmen_id, page=current_page-1, sort=current_sort_option, empfehlung=current_filter_empfehlung, status=current_filter_status) }}" class="button-like-link">&laquo; Vorherige</a>
+                    {% endif %}
+
+                    {# Seiten-Links (optional, kann bei vielen Seiten lang werden) #}
+                    {% set page_window = 2 %} {# Anzahl der Seiten-Links um die aktuelle Seite #}
+                    {% for page_num in range(1, total_pages + 1) %}
+                        {% if page_num == 1 or page_num == total_pages or (page_num >= current_page - page_window and page_num <= current_page + page_window) %}
+                            {% if page_num == current_page %}
+                                <span class="current-page button-like-link disabled">{{ page_num }}</span>
+                            {% else %}
+                                <a href="{{ url_for('alle_bewertungen', unternehmen_id=unternehmen_id, page=page_num, sort=current_sort_option, empfehlung=current_filter_empfehlung, status=current_filter_status) }}" class="button-like-link">{{ page_num }}</a>
+                            {% endif %}
+                        {% elif loop.index == 2 and current_page - page_window > 2 %}
+                            <span class="button-like-link disabled">...</span>
+                        {% elif loop.index == total_pages -1 and current_page + page_window < total_pages -1 %}
+                             <span class="button-like-link disabled">...</span>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if current_page < total_pages %}
+                        <a href="{{ url_for('alle_bewertungen', unternehmen_id=unternehmen_id, page=current_page+1, sort=current_sort_option, empfehlung=current_filter_empfehlung, status=current_filter_status) }}" class="button-like-link">Nächste &raquo;</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+        {% else %}
+            <p>Keine Bewertungen für die aktuellen Filterkriterien gefunden.</p>
+        {% endif %}
+    </div>
+
+    <!-- Modal-Struktur (identisch zu unternehmens_details.html) -->
+    <div id="bewertungModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close-btn">&times;</span>
+            <h3 id="modalTitel"></h3>
+            <div id="modalMeta" class="bewertung-meta"></div>
+            <div id="modalReviewerStatus" class="reviewer-status-modal"></div>
+            <div id="modalDetails" class="bewertung-details-modal"></div>
+            <p id="modalText"></p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

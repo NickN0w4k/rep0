@@ -1,11 +1,12 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modernere Schriftart */
     margin: 20px;
     background-color: #121212; /* Dunkler Hintergrund für den Body */
     color: #e0e0e0; /* Hellerer Text für guten Kontrast */
+    line-height: 1.6; /* Verbesserte Lesbarkeit */
 }
 .container {
-    background-color: #161616; /* Etwas hellerer Hintergrund für Container */
+    background-color: #1e1e1e; /* Etwas anderer Dunkelton für Container */
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(0,0,0,0.5); /* Angepasster Schatten für dunkles Design */
@@ -14,8 +15,9 @@ body {
 }
 h1 {
     color: #03dac6; /* Akzentfarbe Türkis für Hauptüberschriften */
-    border-bottom: 2px solid #333;
+    border-bottom: 1px solid #03dac6; /* Akzentfarbe für die Linie */
     padding-bottom: 10px;
+    font-weight: 300; /* Leichtere Schrift für H1 */
 }
 .form-group { margin-bottom: 12px; } /* Leicht reduziert */
 label { display: block; margin-bottom: 5px; font-weight: bold; }
@@ -27,18 +29,27 @@ input[type="text"], input[type="url"] {
     box-sizing: border-box;
     background-color: #2c2c2c; /* Dunkler Hintergrund für Eingabefelder */
     color: #e0e0e0; /* Heller Text in Eingabefeldern */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Übergang für Fokus */
+}
+input[type="text"]:focus, input[type="url"]:focus {
+    border-color: #03dac6; /* Akzentfarbe für den Rand im Fokus */
+    box-shadow: 0 0 5px rgba(3, 218, 198, 0.5); /* Leichter Schein in Akzentfarbe */
 }
 button {
     padding: 8px 18px; /* Padding reduziert */
-    background-color: #03dac6; /* Akzentfarbe für Buttons (Beispiel: Türkis) */
+    background-color: #bb86fc; /* Lila als sekundäre Akzentfarbe für Buttons */
     color: #121212; /* Dunkler Text auf hellem Button für Kontrast */
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Transform-Übergang hinzugefügt */
 }
-button:hover { background-color: #018786; /* Dunklere Hover-Farbe für Button */ }
+button:hover {
+    background-color: #9e66d4; /* Dunklere Hover-Farbe für Button */
+    transform: translateY(-2px); /* Leichter Anhebe-Effekt */
+}
 
 /* Stil für Links, die wie Buttons aussehen sollen */
 .button-like-link {
@@ -52,14 +63,18 @@ button:hover { background-color: #018786; /* Dunklere Hover-Farbe für Button */
     text-align: center;
     border: none; /* Kein Rand, wie bei Buttons */
     cursor: pointer; /* Zeigt Klickbarkeit an, wie bei Buttons */
+    transition: background-color 0.3s ease, transform 0.2s ease;  /* Transform-Übergang hinzugefügt */
 }
-.button-like-link:hover { background-color: #018786; /* Dunklere Hover-Farbe, passend zu Buttons */ }
+.button-like-link:hover {
+    background-color: #018786; /* Dunklere Hover-Farbe, passend zu Buttons */
+    transform: translateY(-2px); /* Leichter Anhebe-Effekt */
+}
 
 .flash { padding: 10px; margin-top: 20px; margin-bottom: 15px; border-radius: 4px; }
 .flash.error { background-color: #cf6679; color: #121212; border: 1px solid #b00020; } /* Fehler bleibt rot */
 .flash.success { background-color: #00796b; color: #e0e0e0; border: 1px solid #004d40; } /* Türkis für Erfolgs-Flash */
-nav a { margin-right: 15px; color: #03dac6; text-decoration: none; font-weight: bold; } /* Links in Türkis */
-nav a:hover { text-decoration: underline; color: #03dac6; }
+nav a { margin-right: 15px; color: #bb86fc; text-decoration: none; font-weight: bold; transition: color 0.3s ease, letter-spacing 0.3s ease; } /* Links in Lila */
+nav a:hover { color: #03dac6; letter-spacing: 0.5px; /* Leichter Letter-Spacing-Effekt */ }
 table { width: 100%; border-collapse: collapse; margin-top: 20px; }
 th, td { border: 1px solid #444; padding: 10px; text-align: left; }
 th { background-color: #004d40; color: #e0e0e0; } /* Dunkler Türkis-Header für Tabelle */
@@ -77,10 +92,10 @@ tr:hover { background-color: #3a3a3a; } /* Hover-Effekt für Tabellenzeilen */
 }
 /* Die Karte ist jetzt ein Link (<a>-Tag) */
 a.unternehmen-karte {
-    background-color: #2c2c2c; /* Hintergrund der Karte */
-    border: 1px solid #444;
+    background-color: #252525; /* Etwas dunklerer Kartenhintergrund */
+    border: 1px solid #383838; /* Subtilerer Rand */
     border-radius: 8px;
-    padding: 10px; /* Padding weiter reduziert */
+    padding: 15px; /* Etwas mehr Padding für Luft */
     width: calc(25% - 20px); /* Vier Karten pro Zeile, abzüglich Gap */
     aspect-ratio: 1 / 1; /* Macht die Karte quadratisch */
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
@@ -91,18 +106,19 @@ a.unternehmen-karte {
     flex-direction: column;
     justify-content: center ; /* Zentriert Inhalt vertikal */
     align-items: center; /* Zentriert Inhalt horizontal */
-    transition: background-color 0.3s ease, transform 0.2s ease; /* Sanfter Übergang für Hover */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Box-Shadow-Übergang hinzugefügt */
 }
 a.unternehmen-karte:hover {
-    background-color: #3a3a3a; /* Etwas hellerer Hintergrund beim Hovern */
-    transform: translateY(-3px); /* Leichter Anhebe-Effekt */
+    background-color: #333; /* Deutlicherer Hover-Effekt */
+    transform: translateY(-5px) scale(1.02); /* Stärkerer Anhebe- und leichter Zoom-Effekt */
+    box-shadow: 0 8px 15px rgba(0,0,0,0.4); /* Stärkerer Schatten beim Hovern */
 }
 
 a.unternehmen-karte h3 {
     margin-top: 0;
     margin-bottom: 0; /* Kein zusätzlicher Abstand für die Überschrift in der Karte */
     color: #03dac6; /* Türkis für Kartentitel */
-    font-size: 1em; /* Schriftgröße angepasst für kleinere Karten */
+    font-size: 1.1em; /* Etwas größer für bessere Lesbarkeit */
     /* Optional: Falls Titel zu lang werden und umbrechen sollen oder mit Ellipsen enden */
     /* white-space: normal; */
     /* overflow: hidden; */
@@ -135,26 +151,31 @@ a.unternehmen-karte h3 {
 }
 
 .bewertung-karte {
-    background-color: #2c2c2c;
-    border: 1px solid #444;
+    background-color: #252525; /* Konsistenter Kartenhintergrund */
+    border: 1px solid #383838; /* Subtilerer Rand */
     border-radius: 8px;
-    padding: 10px; /* Padding weiter reduziert */
+    padding: 15px; /* Mehr Padding für Luft */
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     box-sizing: border-box; /* Wichtig für korrekte Breitenberechnung */
 
     /* Anpassung für nebeneinander liegende Karten */
-    /* Standard: Drei Karten pro Zeile. Gap = 12px. (2 * 12px) / 3 = 8px Abzug pro Karte */
-    width: calc(33.333% - 8px); 
-    min-width: 260px; /* Mindestbreite reduziert */
+    /* NEU: Vier Karten pro Zeile. Gap = 12px. (3 * 12px) / 4 = 9px Abzug pro Karte */
+    width: calc(25% - 9px); /* Oder genauer: calc((100% - (3 * 12px)) / 4) */
+    min-width: 220px; /* Mindestbreite weiter reduziert, um 4 Karten besser zu ermöglichen */
     /* flex: 1 0 calc(33.333% - 10px); // Alternative mit flex-grow/shrink */
     cursor: pointer; /* Zeigt an, dass die Karte klickbar ist */
-    transition: background-color 0.3s ease, transform 0.2s ease; /* Sanfter Übergang für Hover */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Box-Shadow-Übergang hinzugefügt */
+}
+
+.bewertung-karte:hover {
+    transform: translateY(-3px); /* Leichter Anhebe-Effekt */
+    box-shadow: 0 5px 10px rgba(0,0,0,0.3); /* Stärkerer Schatten beim Hovern */
 }
 
 .bewertung-karte h4 { /* Titel der Bewertung */
     color: #03dac6; /* Akzentfarbe Türkis für Bewertungstitel */
     margin-top: 0;
-    margin-bottom: 6px; /* Reduziert */
+    margin-bottom: 8px; /* Etwas mehr Abstand */
     font-size: 1.1em;
 }
 
@@ -165,7 +186,7 @@ a.unternehmen-karte h3 {
 }
 
 .bewertung-meta .sterne {
-    color: #fdd835; /* Gelb für Sterne */
+    color: #FFCA28; /* Ein etwas satteres Gelb für Sterne */
     margin-left: 10px;
 }
 
@@ -176,8 +197,8 @@ a.unternehmen-karte h3 {
     font-size: 0.8em;
     font-weight: bold;
 }
-.empfehlung.empfohlen { background-color: #28a745; color: white; } /* Grün für empfohlen */
-.empfehlung.nicht-empfohlen { background-color: #dc3545; color: white; } /* Rot für nicht empfohlen */
+.empfehlung.empfohlen { background-color: #4CAF50; color: white; } /* Helleres Grün */
+.empfehlung.nicht-empfohlen { background-color: #F44336; color: white; } /* Helleres Rot */
 .bewertung-meta .status-bewerter {
     margin-left: 10px;
     padding: 2px 6px;
@@ -189,7 +210,7 @@ a.unternehmen-karte h3 {
 
 .bewertung-text-vorschau { /* Angepasst für den Vorschautext auf der Karte */
     font-size: 0.95em;
-    line-height: 1.6;
+    line-height: 1.5; /* Etwas kompakter */
     color: #d0d0d0; /* Etwas hellerer Text für bessere Lesbarkeit */
     overflow: hidden; /* Verhindert, dass Text überläuft */
     /* max-height: 4.8em; */ /* Ca. 3 Zeilen, abhängig von line-height */
@@ -225,9 +246,10 @@ a.unternehmen-karte h3 {
 */
 /* Responsive Anpassung für Bewertungskarten */
 @media (max-width: 992px) { /* Für Tablets und kleinere Desktops */
+    /* Hier könnten wir auf 3 Karten pro Zeile gehen, wenn gewünscht, oder direkt auf 2 */
     .bewertung-karte {
-        /* Zwei Karten pro Zeile. Gap = 15px. (1 * 15px) / 2 = 7.5px Abzug pro Karte */
-        width: calc(50% - 7.5px);
+        /* Zwei Karten pro Zeile. Gap = 12px. (1 * 12px) / 2 = 6px Abzug pro Karte */
+        width: calc(50% - 6px); /* Oder genauer: calc((100% - 12px) / 2) */
     }
 }
 
@@ -263,10 +285,10 @@ a.unternehmen-karte h3 {
 }
 
 .stat-block {
-    background-color: #2a2a2a;
+    background-color: #252525; /* Konsistenter Kartenhintergrund */
     padding: 15px; /* Padding reduziert */
     border-radius: 8px;
-    border: 1px solid #383838;
+    border: 1px solid #333; /* Etwas dunklerer Rand */
     text-align: center;
     flex: 1 1 140px; /* Erlaubt Wachstum, Schrumpfen, Basisbreite für jeden Stat-Block */
     min-width: 150px; /* Mindestbreite für einen Statistik-Block */
@@ -298,10 +320,10 @@ a.unternehmen-karte h3 {
 
 .verlaufsgrafik-container {
     flex: 2 1 400px; /* Basisbreite weiter reduziert */
-    background-color: #2a2a2a;
+    background-color: #252525; /* Konsistenter Kartenhintergrund */
     padding: 15px; /* Padding reduziert */
     border-radius: 8px;
-    border: 1px solid #383838;
+    border: 1px solid #333; /* Etwas dunklerer Rand */
 }
 .verlaufsgrafik-container h2 {
     margin-top: 0;
@@ -354,20 +376,31 @@ a.unternehmen-karte h3 {
     overflow: auto; /* Scrollen im Modal ermöglichen, falls Inhalt zu lang */
     background-color: rgba(0,0,0,0.7); /* Halbtransparenter Hintergrund */
     padding-top: 60px; /* Platz oben für das Modal-Fenster */
+    opacity: 0; /* Startet unsichtbar für Fade-In */
+    transition: opacity 0.3s ease-in-out; /* Sanfter Übergang für das Modal-Overlay */
 }
 
 .modal-content {
-    background-color: #1e1e1e; /* Gleicher Hintergrund wie Container */
+    background-color: #282828; /* Etwas hellerer Modal-Hintergrund für Abhebung */
     margin: 5% auto; /* Zentriert und mit Abstand oben/unten */
     padding: 25px;
-    border: 1px solid #444;
+    border: 1px solid #555; /* Hellerer Rand für Modal */
     border-radius: 8px;
     width: 85%; /* Breite des Modals relativ zum Viewport, etwas schmaler */
     max-width: 600px; /* Maximale Breite weiter reduziert */
     box-shadow: 0 5px 15px rgba(0,0,0,0.5);
     position: relative;
     color: #e0e0e0;
+    transform: translateY(-20px); /* Startet leicht nach oben verschoben für Slide-In */
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out; /* Übergang für den Inhalt */
+    opacity: 0; /* Startet unsichtbar */
 }
+
+/* Stile, wenn das Modal aktiv ist */
+.modal.active { opacity: 1; }
+.modal.active .modal-content {
+    transform: translateY(0);
+    opacity: 1; }
 
 .modal-close-btn {
     color: #aaa;
@@ -410,10 +443,10 @@ a.unternehmen-karte h3 {
 }
 
 .filter-container, .sort-container {
-    background-color: #2a2a2a; /* Etwas anderer Hintergrund zur Abgrenzung */
+    background-color: #252525; /* Konsistenter Kartenhintergrund */
     padding: 15px; /* Padding reduziert */
     border-radius: 8px;
-    border: 1px solid #383838;
+    border: 1px solid #333; /* Etwas dunklerer Rand */
     flex: 1 1 220px; /* Basisbreite angepasst */
     min-width: 240px; /* Mindestbreite reduziert */
 }

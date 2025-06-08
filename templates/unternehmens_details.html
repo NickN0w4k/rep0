@@ -10,7 +10,7 @@
     <div class="container">
         <h1>Details für: {{ unternehmen_name or 'Unbekanntes Unternehmen' }}</h1>
         <div style="margin-bottom: 15px;">
-            <a href="{{ url_for('show_data') }}" class="button-like-link">Zurück zur Unternehmensübersicht</a>
+            <a href="{{ url_for('show_data') }}" class="button-like-link">&laquo; Zurück</a>
             {# Neuer Button zum Starten des Scrapings für dieses Unternehmen #}
             <form action="{{ url_for('scrape_company', unternehmen_id=unternehmen_id) }}" method="post" style="display: inline-block; margin-left: 10px;">
                 <button type="submit" class="button-like-link">Scraping für dieses Unternehmen starten</button>
@@ -28,85 +28,94 @@
 
         <div class="uebersicht-header">
             <div class="statistiken-container">
+                {# Kununu Statistiken #}
+                {% if aktueller_kununu_schnitt is not none %}
                 <div class="stat-block">
-                    <h2>Aktueller Schnitt</h2>
-                    {% if aktueller_gesamtdurchschnitt is not none %}
-                        <div class="durchschnitt-grafik-container">
-                            <canvas id="gesamtdurchschnittDonutChart"></canvas>
-                        </div>
-                        <script>
-                            const aktuellerDurchschnittForDonut = {{ aktueller_gesamtdurchschnitt|tojson|safe }};
-                            const maxSkalaForDonut = 5; // Maximalwert der Kununu-Skala
-                        </script>
-                    {% else %}
-                        <p class="stat-wert">-</p>
-                        <p class="stat-label">Kein Durchschnitt</p>
+                    <h2>Kununu Schnitt</h2>
+                    <div class="durchschnitt-grafik-container">
+                        <canvas id="kununuDurchschnittDonutChart"></canvas>
+                    </div>
+                    <script>
+                        // Daten für Kununu Donut Chart
+                        const aktuellerKununuSchnittForDonut = {{ aktueller_kununu_schnitt|tojson|safe }};
+                        const maxSkalaKununu = 5; 
+                    </script>
+                    {% if aktuellste_kununu_anzahl_bewertungen is not none %}
+                        <p class="stat-label">{{ aktuellste_kununu_anzahl_bewertungen }} Bewertungen</p>
+                    {% endif %}
+                    {% if aktuelle_kununu_empfehlungsrate is not none %}
+                        <p class="stat-label recommendation-wert">Empfehlung: {{ "%.0f"|format(aktuelle_kununu_empfehlungsrate) }}%</p>
                     {% endif %}
                 </div>
-
-                {% if aktuellste_anzahl_bewertungen is not none %}
+                {% elif unternehmen_id %} {# Zeige Platzhalter nur wenn eine Firma geladen ist #}
                 <div class="stat-block">
-                    <h2>Bewertungen</h2>
-                    <p class="stat-wert">{{ aktuellste_anzahl_bewertungen }}</p>
-                    <p class="stat-label">Gesamt</p>
+                    <h2>Kununu Schnitt</h2>
+                     <p class="stat-wert">-</p>
+                    <p class="stat-label">Keine Daten</p>
                 </div>
                 {% endif %}
 
-                {% if aktuelle_empfehlungsrate is not none %}
+                {# Trustpilot Statistiken #}
+                {% if aktueller_trustpilot_schnitt is not none %}
                 <div class="stat-block">
-                    <h2>Empfehlung</h2>
-                    <p class="stat-wert recommendation-wert">{{ "%.0f"|format(aktuelle_empfehlungsrate) }}%</p>
-                    <p class="stat-label">Weiterempfehlung</p>
+                    <h2>Trustpilot Schnitt</h2>
+                    <div class="durchschnitt-grafik-container">
+                        <canvas id="trustpilotDurchschnittDonutChart"></canvas>
+                    </div>
+                    <script>
+                        // Daten für Trustpilot Donut Chart
+                        const aktuellerTrustpilotSchnittForDonut = {{ aktueller_trustpilot_schnitt|tojson|safe }};
+                        const maxSkalaTrustpilot = 5; // Annahme, dass Trustpilot auch bis 5 geht
+                    </script>
+                    {% if aktuellste_trustpilot_anzahl_bewertungen is not none %}
+                        <p class="stat-label">{{ aktuellste_trustpilot_anzahl_bewertungen }} Bewertungen</p>
+                    {% endif %}
+                </div>
+                {% elif unternehmen_id %} {# Zeige Platzhalter nur wenn eine Firma geladen ist #}
+                <div class="stat-block">
+                    <h2>Trustpilot Schnitt</h2>
+                    <p class="stat-wert">-</p>
+                    <p class="stat-label">Keine Daten</p>
                 </div>
                 {% endif %}
+
+                {# Ggf. hier noch ein Block für Gesamtbewertungen über alle Plattformen, falls gewünscht #}
+
             </div>
 
-            <div class="verlaufsgrafik-container">
-                <h2>Profilverlauf</h2>
-                {% if chart_profil_verlauf_data and chart_profil_verlauf_data|length > 1 %}
-                    <canvas id="profilVerlaufChart"></canvas>
+            {# Separater Container für Kununu Verlaufsgrafik #}
+            <div class="verlaufsgrafik-container kununu-verlauf">
+                <h2>Kununu Profilverlauf</h2>
+                {% if kununu_verlauf_data and kununu_verlauf_data|length > 1 %}
+                    <canvas id="kununuProfilVerlaufChart"></canvas>
                     <script>
-                        const profilVerlaufChartData = {{ chart_profil_verlauf_data|tojson|safe }};
+                        const kununuProfilVerlaufChartData = {{ kununu_verlauf_data|tojson|safe }};
                     </script>
                 {% else %}
-                    <p>Nicht genügend Daten für eine Verlaufsgrafik vorhanden.</p>
-                </div>
+                    <p>Nicht genügend Daten für eine Kununu Verlaufsgrafik vorhanden.</p>
                 {% endif %}
             </div>
-        </div>
 
-        <div class="actions-container"> {# Neuer Wrapper für Filter und Sortierung #}
-            <div class="filter-container">
-            <h3>Bewertungen filtern:</h3>
-            <div class="filter-group">
-                <label for="filterEmpfehlung">Empfehlung:</label>
-                <select id="filterEmpfehlung" class="filter-select">
-                    <option value="alle">Alle</option>
-                    <option value="true">Empfohlen</option>
-                    <option value="false">Nicht empfohlen</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="filterStatus">Mitarbeiterstatus:</label>
-                <select id="filterStatus" class="filter-select">
-                    <option value="alle">Alle</option>
-                    <option value="false">Aktuell</option> {# is_former_employee == False #}
-                    <option value="true">Ehemalig</option> {# is_former_employee == True #}
-                </select>
-            </div>
-            </div>
-
-            <div class="sort-container">
-                <h3>Sortieren nach:</h3>
-                <select id="sortBewertungen" class="filter-select">
-                    <option value="neueste" {% if current_sort_option == 'neueste' %}selected{% endif %}>Neueste zuerst</option>
-                    <option value="sterne_asc" {% if current_sort_option == 'sterne_asc' %}selected{% endif %}>Sterne (aufsteigend)</option>
-                    <option value="sterne_desc" {% if current_sort_option == 'sterne_desc' %}selected{% endif %}>Sterne (absteigend)</option>
-                </select>
+            {# Separater Container für Trustpilot Verlaufsgrafik #}
+            <div class="verlaufsgrafik-container trustpilot-verlauf">
+                <h2>Trustpilot Profilverlauf</h2>
+                {% if trustpilot_verlauf_data and trustpilot_verlauf_data|length > 1 %}
+                    <canvas id="trustpilotProfilVerlaufChart"></canvas>
+                    <script>
+                        const trustpilotProfilVerlaufChartData = {{ trustpilot_verlauf_data|tojson|safe }};
+                    </script>
+                {% else %}
+                    <p>Nicht genügend Daten für eine Trustpilot Verlaufsgrafik vorhanden.</p>
+                {% endif %}
             </div>
         </div>
 
         <h2>Neueste Bewertungen</h2>
+        {% if gesamtzahl_bewertungen_unternehmen > 10 %}
+        <div style="margin-bottom: 10px;">
+            <a href="{{ url_for('alle_bewertungen', unternehmen_id=unternehmen_id) }}" class="button-like-link">Alle {{ gesamtzahl_bewertungen_unternehmen }} Bewertungen anzeigen</a>
+        </div>
+        {% endif %}
         {% if neueste_bewertungen_list %}
             <div class="bewertung-karten-container">
                 {% for bewertung in neueste_bewertungen_list %}

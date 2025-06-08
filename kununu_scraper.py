@@ -136,7 +136,7 @@ def add_profil_verlauf(conn, profil_id, gesamtdurchschnitt, anzahl_bewertungen, 
         conn.rollback()
 
 
-def add_bewertung(conn, profil_id, sterne, titel, text, datum_str, bewertung_hash,
+def add_bewertung(conn, profil_id, sterne, titel, text, datum_str, platform_review_id,
                   review_type=None, is_recommended=None, reviewer_position=None,
                   reviewer_department=None, reviewed_entity_name=None, reviewed_entity_uuid=None, is_former_employee=None, updated_at_kununu=None,
                   reviewer_city=None, reviewer_state=None, apprenticeship_job_title=None):
@@ -150,7 +150,7 @@ def add_bewertung(conn, profil_id, sterne, titel, text, datum_str, bewertung_has
         titel (str): Titel der Bewertung.
         text (str): Vollständiger Text der Bewertung.
         datum_str (str): Datum der Bewertung (ISO-Format von Kununu).
-        bewertung_hash (str): Eindeutige ID/Hash für die Bewertung.
+        platform_review_id (str): Eindeutige ID/Hash für die Bewertung.
         review_type (str, optional): Typ der Bewertung.
         is_recommended (bool, optional): Ob empfohlen.
         reviewer_position (str, optional): Position des Bewerters.
@@ -170,13 +170,13 @@ def add_bewertung(conn, profil_id, sterne, titel, text, datum_str, bewertung_has
     try:
         cursor.execute("""
             INSERT INTO bewertungen ( 
-                profil_id, sterne, titel, text, datum, bewertung_hash, is_former_employee, updated_at_kununu, last_seen_scraping_datum,
+                profil_id, sterne, titel, text, datum, platform_review_id, is_former_employee, platform_data_updated_at, last_seen_scraping_datum,
                 review_type, is_recommended, reviewer_position, reviewer_department,
                 reviewed_entity_name, reviewed_entity_uuid, reviewer_city, reviewer_state,
                 apprenticeship_job_title
             )
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (profil_id, sterne, titel, text, datum_str, bewertung_hash, is_former_employee, updated_at_kununu, datetime.now(),
+        """, (profil_id, sterne, titel, text, datum_str, platform_review_id, is_former_employee, updated_at_kununu, datetime.now(),
               review_type, is_recommended, reviewer_position, reviewer_department, 
               reviewed_entity_name, reviewed_entity_uuid, reviewer_city, reviewer_state, apprenticeship_job_title))
         conn.commit()
@@ -184,9 +184,9 @@ def add_bewertung(conn, profil_id, sterne, titel, text, datum_str, bewertung_has
         print(f"Bewertung '{titel[:30]}...' für Profil ID {profil_id} hinzugefügt.")
     except sqlite3.IntegrityError as e:
         if "UNIQUE constraint failed" in str(e):
-            print(f"Hinweis: Bewertung '{titel[:30]}...' (ID: {bewertung_hash}) für Profil ID {profil_id} existiert bereits. Übersprungen.")
+            print(f"Hinweis: Bewertung '{titel[:30]}...' (ID: {platform_review_id}) für Profil ID {profil_id} existiert bereits. Übersprungen.")
             # Um die ID der existierenden Bewertung zu holen (optional, falls Faktoren aktualisiert werden sollen):
-            # cursor.execute("SELECT id FROM bewertungen WHERE profil_id = ? AND bewertung_hash = ?", (profil_id, bewertung_hash))
+            # cursor.execute("SELECT id FROM bewertungen WHERE profil_id = ? AND platform_review_id = ?", (profil_id, platform_review_id))
             # row = cursor.fetchone()
             # if row: bewertung_id = row['id']
         else:
@@ -198,7 +198,7 @@ def add_bewertung(conn, profil_id, sterne, titel, text, datum_str, bewertung_has
 
 def update_bewertung(conn, bewertung_db_id, sterne, titel, text, datum_str,
                      review_type, is_recommended, reviewer_position, reviewer_department,
-                     reviewed_entity_name, reviewed_entity_uuid, is_former_employee, updated_at_kununu,
+                     reviewed_entity_name, reviewed_entity_uuid, is_former_employee, platform_data_updated_at,
                      reviewer_city, reviewer_state, apprenticeship_job_title):
     """Aktualisiert eine bestehende Bewertung in der Datenbank."""
     cursor = conn.cursor()
@@ -208,13 +208,13 @@ def update_bewertung(conn, bewertung_db_id, sterne, titel, text, datum_str,
             SET sterne = ?, titel = ?, text = ?, datum = ?, review_type = ?,
                 is_recommended = ?, reviewer_position = ?, reviewer_department = ?,
                 reviewed_entity_name = ?, reviewed_entity_uuid = ?, is_former_employee = ?,
-                updated_at_kununu = ?, last_seen_scraping_datum = ?, is_deleted = 0,
+                platform_data_updated_at = ?, last_seen_scraping_datum = ?, is_deleted = 0,
                 reviewer_city = ?, reviewer_state = ?, apprenticeship_job_title = ?
             WHERE id = ?
         """, (sterne, titel, text, datum_str, review_type,
               is_recommended, reviewer_position, reviewer_department,
               reviewed_entity_name, reviewed_entity_uuid, is_former_employee,
-              updated_at_kununu, datetime.now(),
+              platform_data_updated_at, datetime.now(),
               reviewer_city, reviewer_state, apprenticeship_job_title,
               bewertung_db_id))
         conn.commit()
@@ -225,17 +225,17 @@ def update_bewertung(conn, bewertung_db_id, sterne, titel, text, datum_str,
         conn.rollback()
         return False
 
-def get_existing_review_data(conn, profil_id, bewertung_kununu_uuid):
+def get_existing_review_data(conn, profil_id, platform_review_id):
     """Holt Daten einer existierenden Bewertung anhand der Kununu UUID."""
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT id, updated_at_kununu, is_deleted
+        SELECT id, platform_data_updated_at, is_deleted
         FROM bewertungen
-        WHERE profil_id = ? AND bewertung_hash = ?
-    """, (profil_id, bewertung_kununu_uuid))
+        WHERE profil_id = ? AND platform_review_id = ?
+    """, (profil_id, platform_review_id))
     row = cursor.fetchone()
     if row:
-        return {"db_id": row["id"], "updated_at_kununu_db": row["updated_at_kununu"], "is_deleted_db": row["is_deleted"]}
+        return {"db_id": row["id"], "platform_data_updated_at_db": row["platform_data_updated_at"], "is_deleted_db": row["is_deleted"]}
     return None
 
 
@@ -491,8 +491,8 @@ def scrape_kununu_individual_reviews_from_json(json_page_data, profil_id, conn):
 
             if existing_review:
                 # Bewertung existiert bereits, prüfe auf Änderungen
-                print(f"  DEBUG: Bewertung {bewertung_unique_id} existiert in DB (ID: {existing_review['db_id']}). API updatedAt: {updated_at_kununu_api}, DB updatedAt: {existing_review['updated_at_kununu_db']}")
-                if updated_at_kununu_api and (existing_review['updated_at_kununu_db'] is None or updated_at_kununu_api > existing_review['updated_at_kununu_db'] or existing_review['is_deleted_db']):
+                print(f"  DEBUG: Bewertung {bewertung_unique_id} existiert in DB (ID: {existing_review['db_id']}). API updatedAt: {updated_at_kununu_api}, DB updatedAt: {existing_review['platform_data_updated_at_db']}")
+                if updated_at_kununu_api and (existing_review['platform_data_updated_at_db'] is None or updated_at_kununu_api > existing_review['platform_data_updated_at_db'] or existing_review['is_deleted_db']):
                     print(f"  -> Bewertung {bewertung_unique_id} wurde geändert oder war gelöscht. Aktualisiere...")
                     # Faktoren der alten Bewertung löschen, bevor neue hinzugefügt werden
                     cursor = conn.cursor()
@@ -518,7 +518,7 @@ def scrape_kununu_individual_reviews_from_json(json_page_data, profil_id, conn):
                 # Neue Bewertung
                 bewertung_id_in_db = add_bewertung(
                     conn=conn, profil_id=profil_id, sterne=sterne, titel=titel,
-                    text=full_review_text, datum_str=datum_iso, bewertung_hash=bewertung_unique_id,
+                    text=full_review_text, datum_str=datum_iso, platform_review_id=bewertung_unique_id,
                     review_type=review_type,
                     is_recommended=is_recommended,
                     reviewer_position=reviewer_position,
@@ -526,7 +526,7 @@ def scrape_kununu_individual_reviews_from_json(json_page_data, profil_id, conn):
                     reviewed_entity_name=reviewed_entity_name,
                     reviewed_entity_uuid=reviewed_entity_uuid,
                     is_former_employee=is_former_employee,
-                    updated_at_kununu=updated_at_kununu_api,
+                    updated_at_kununu=updated_at_kununu_api, # This should be platform_data_updated_at
                     reviewer_city=reviewer_city,
                     reviewer_state=reviewer_state,
                     apprenticeship_job_title=apprenticeship_job_title
